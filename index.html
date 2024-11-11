@@ -100,7 +100,10 @@
             // Simulate the object being placed on the scene
             console.log("Simulating object placement in AR scene.");
             wireframeObject.setAttribute('visible', 'true');
-            wireframeObject.setAttribute('position', {x: 0, y: 0, z: -3});
+            wireframeObject.setAttribute('position', {x: 0, y: 0, z: -3}); // Placed 3 meters away
+
+            // Ensure the object is properly visible
+            wireframeObject.setAttribute('scale', '1 1 1');  // Set the scale to a reasonable size
             const position = wireframeObject.getAttribute('position');
             console.log("Object placed at position: x =", position.x, "y =", position.y, "z =", position.z);
         }, 2000); // Delay simulating placement after 2 seconds for demo
