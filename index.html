@@ -26,7 +26,7 @@
         <a-entity id="wireframe-object" 
                   geometry="primitive: box; width: 1; height: 1; depth: 1;"
                   material="wireframe: true; color: red;"
-                  position="0 0 0"
+                  position="0 0 -3"  <!-- Placed 3 meters away from camera -->
                   scale="1 1 1"
                   visible="false">
         </a-entity>
@@ -74,9 +74,11 @@
 
                 const position = wireframeObject.getAttribute('position');
                 console.log("Current object position before move:", position);
+
+                // Update object position based on mouse movement
                 wireframeObject.setAttribute('position', {
-                    x: position.x + deltaX * 0.01,
-                    y: position.y - deltaY * 0.01,
+                    x: position.x + deltaX * 0.01,  // Adjusting the sensitivity of movement
+                    y: position.y - deltaY * 0.01,  // Adjusting the sensitivity of movement
                     z: position.z
                 });
 
@@ -98,7 +100,8 @@
             console.log("Simulating object placement in AR scene.");
             wireframeObject.setAttribute('visible', 'true');
             wireframeObject.setAttribute('position', {x: 0, y: 0, z: -3});
-            console.log("Object placed at position:", wireframeObject.getAttribute('position'));
+            const position = wireframeObject.getAttribute('position');
+            console.log("Object placed at position: x =", position.x, "y =", position.y, "z =", position.z);
         }, 2000); // Delay simulating placement after 2 seconds for demo
     </script>
 </body>
