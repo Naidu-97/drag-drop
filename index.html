@@ -24,17 +24,15 @@
              arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best; 
                    html-standalone: true; immersive-mode-ui: true;">
         <!-- Camera with AR.js integration -->
-        <a-camera position="0 0 0" 
-                  look-controls="enabled: true"   <!-- Make sure look-controls are enabled -->
-                  arjs="trackingMethod: best;"></a-camera>
+        <a-camera position="0 0 0" look-controls="enabled: true"></a-camera>
 
         <!-- 3D Object - Initially placed in the scene -->
         <a-entity id="wireframe-object" 
-                  geometry="primitive: box; width: 1; height: 1; depth: 1;"
+                  geometry="primitive: box; width: 0.5; height: 0.5; depth: 0.5;"
                   material="wireframe: true; color: red;"
-                  position="0 0 -3"  <!-- Placed 3 meters away from camera -->
+                  position="0 0 -1.5"  <!-- Placed 1.5 meters away from camera -->
                   scale="1 1 1"
-                  visible="false">
+                  visible="true">
         </a-entity>
     </a-scene>
 
@@ -45,73 +43,48 @@
         // Get the 3D object and zoom slider
         const wireframeObject = document.querySelector('#wireframe-object');
         const zoomSlider = document.querySelector('#zoom-slider');
-        console.log("Wireframe object and zoom slider initialized.");
+        let isPlacing = false;
 
         // Handle Zoom Functionality
         zoomSlider.addEventListener('input', (event) => {
             const zoomValue = event.target.value;
-            console.log("Zoom slider input detected: " + zoomValue);
             wireframeObject.setAttribute('scale', `${zoomValue} ${zoomValue} ${zoomValue}`);
-            console.log("Object scale updated to: " + `${zoomValue} ${zoomValue} ${zoomValue}`);
         });
 
-        // For placing the 3D object in the correct position on-screen
-        let isPlacing = false;
-        let previousX = 0;
-        let previousY = 0;
-
-        // Detect Mouse Interaction to Drag/Move Object
-        wireframeObject.addEventListener('mousedown', (event) => {
-            console.log("Mouse down event detected on the wireframe object.");
+        // Detect touch start to initiate dragging
+        wireframeObject.addEventListener('touchstart', (event) => {
             isPlacing = true;
-            previousX = event.clientX;
-            previousY = event.clientY;
-            console.log("Starting drag: initial position:", previousX, previousY);
+            previousX = event.touches[0].clientX;
+            previousY = event.touches[0].clientY;
         });
 
-        // Allow drag and move of the 3D object (in this simple version, it's mouse drag)
-        document.addEventListener('mousemove', (event) => {
+        // Handle dragging on touch move
+        document.addEventListener('touchmove', (event) => {
             if (isPlacing) {
-                const deltaX = event.clientX - previousX;
-                const deltaY = event.clientY - previousY;
-
-                // Debugging position calculation
-                console.log("Dragging object: deltaX =", deltaX, "deltaY =", deltaY);
+                const deltaX = event.touches[0].clientX - previousX;
+                const deltaY = event.touches[0].clientY - previousY;
 
                 const position = wireframeObject.getAttribute('position');
-                console.log("Current object position before move:", position);
-
-                // Update object position based on mouse movement
                 wireframeObject.setAttribute('position', {
-                    x: position.x + deltaX * 0.01,  // Adjusting the sensitivity of movement
-                    y: position.y - deltaY * 0.01,  // Adjusting the sensitivity of movement
+                    x: position.x + deltaX * 0.01, 
+                    y: position.y - deltaY * 0.01, 
                     z: position.z
                 });
 
-                console.log("New object position after move:", wireframeObject.getAttribute('position'));
-                previousX = event.clientX;
-                previousY = event.clientY;
+                previousX = event.touches[0].clientX;
+                previousY = event.touches[0].clientY;
             }
         });
 
-        document.addEventListener('mouseup', () => {
-            console.log("Mouse up event detected: Stopping drag.");
+        // Stop dragging on touch end
+        document.addEventListener('touchend', () => {
             isPlacing = false;
         });
 
-        // Simulation of "placing" the 3D object once the user shows the object
-        // For now, we simulate it by clicking a button or using touch (you can implement a more sophisticated AR feature)
-        setTimeout(() => {
-            // Simulate the object being placed on the scene
-            console.log("Simulating object placement in AR scene.");
-            wireframeObject.setAttribute('visible', 'true');
-            wireframeObject.setAttribute('position', {x: 0, y: 0, z: -3}); // Placed 3 meters away
-
-            // Ensure the object is properly visible
-            wireframeObject.setAttribute('scale', '1 1 1');  // Set the scale to a reasonable size
-            const position = wireframeObject.getAttribute('position');
-            console.log("Object placed at position: x =", position.x, "y =", position.y, "z =", position.z);
-        }, 2000); // Delay simulating placement after 2 seconds for demo
+        // Initial placement in scene
+        wireframeObject.setAttribute('visible', 'true');
+        wireframeObject.setAttribute('position', {x: 0, y: 0, z: -1.5}); // Place it close to the camera
+        wireframeObject.setAttribute('scale', '1 1 1');  // Default scale
     </script>
 </body>
 </html>
