@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Drag and Drop</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.rawgit.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+</head>
+<body style="margin: 0; overflow: hidden;">
+    <a-scene embedded arjs='sourceType: webcam;'>
+        <a-entity id="draggable" geometry="primitive: box" material="color: #4CC3D0" position="0 0 -5" draggable></a-entity>
+        <a-entity camera look-controls></a-entity>
+    </a-scene>
+
+    <script>
+        AFRAME.registerComponent('draggable', {
+            schema: {
+                isDragging: {type: 'boolean', default: false}
+            },
+            init: function () {
+                const el = this.el;
+                const data = this.data;
+
+                el.addEventListener('mousedown', () => {
+                    data.isDragging = true;
+                });
+
+                el.addEventListener('mouseup', () => {
+                    data.isDragging = false;
+                });
+
+                el.addEventListener('mouseleave', () => {
+                    data.isDragging = false;
+                });
+            },
+            tick: function () {
+                if (this.data.isDragging) {
+                    const cursor = document.querySelector('[cursor]');
+                    const intersection = cursor.components.cursor.getIntersection();
+                    if (intersection) {
+                        // Update position of the draggable object
+                        this.el.object3D.position.copy(intersection.point);
+                    }
+                }
+            }
+        });
+
+        // Add a cursor entity for raycasting
+        AFRAME.registerComponent('cursor-listener', {
+            init: function () {
+                this.el.addEventListener('click', function (evt) {
+                    const draggable = document.getElementById('draggable');
+                    const intersection = evt.detail.intersection;
+
+                    if (intersection) {
+                        // Move the draggable object to the clicked position
+                        draggable.object3D.position.copy(intersection.point);
+                    }
+                });
+            }
+        });
+        
+        // Add cursor entity
+        AFRAME.registerComponent('cursor', {
+            init: function () {
+                const cursorEl = document.createElement('a-entity');
+                cursorEl.setAttribute('geometry', 'primitive: ring; radiusInner: 0.02; radiusOuter: 0.03');
+                cursorEl.setAttribute('material', 'color: #FF0000; shader: flat;');
+                cursorEl.setAttribute('position', '0 0 -1');
+                cursorEl.setAttribute('cursor-listener', '');
+                
+                this.el.appendChild(cursorEl);
+            }
+        });
+        
+        // Attach cursor component to camera
+        document.querySelector('[camera]').setAttribute('cursor', '');
+    </script>
+</body>
+</html>
